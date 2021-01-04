@@ -18,8 +18,8 @@ project(AUDIO_PLUGIN_EXAMPLE VERSION 0.0.1)
 
 # Target names
 
-set(PLUGIN_TARGET_NAME "MyAudioPlugin")
-set(TEST_TARGET_NAME "MyAudioPluginTests")
+set(PLUGIN_TARGET_NAME "ChaoticDelay")
+set(TEST_TARGET_NAME "ChaoticDelayTests")
 
 # If you've installed JUCE somehow (via a package manager, or directly using the CMake install
 # target), you'll need to tell this project that it depends on the installed copy of JUCE. If you've
@@ -56,7 +56,7 @@ juce_add_plugin(${PLUGIN_TARGET_NAME}
     PLUGIN_MANUFACTURER_CODE Juce               # A four-character manufacturer id with at least one upper-case character
     PLUGIN_CODE Cts0                            # A unique four-character plugin id with at least one upper-case character
     FORMATS AU VST3 Standalone                  # The formats to build. Other valid formats are: AAX Unity VST AU AUv3
-    PRODUCT_NAME "Audio Plugin Example")        # The name of the final executable, which can differ from the target name
+    PRODUCT_NAME "Chaotic Delay")        # The name of the final executable, which can differ from the target name
 
 # `juce_generate_juce_header` will create a JuceHeader.h for a given target, which will be generated
 # into your build tree. This should be included with `#include <JuceHeader.h>`. The include path for
@@ -74,7 +74,10 @@ juce_generate_juce_header(${PLUGIN_TARGET_NAME})
 target_sources(${PLUGIN_TARGET_NAME}
     PRIVATE
         src/PluginEditor.cpp
-        src/PluginProcessor.cpp)
+        src/PluginProcessor.cpp
+        src/Delay.cpp
+        src/BufferWriter.cpp
+        )
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
 # project, these might be passed in the 'Preprocessor Definitions' field. JUCE modules also make use
@@ -122,6 +125,7 @@ juce_generate_juce_header(${TEST_TARGET_NAME})
 target_sources(${TEST_TARGET_NAME}
   PRIVATE
       tests/main.cpp
+      src/BufferWriter.cpp
   )
 
 target_compile_definitions(${TEST_TARGET_NAME}
@@ -144,4 +148,4 @@ target_link_libraries(${TEST_TARGET_NAME}
 enable_testing()
 add_test(
   NAME plugin_tests
-  COMMAND ${TEST_TARGET_NAME})
+  COMMAND ${TEST_TARGET_NAME} --category="sextone_tests")

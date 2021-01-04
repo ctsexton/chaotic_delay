@@ -25,61 +25,52 @@
 
 #include <JuceHeader.h>
 
+#include "test_buffer_writer.h"
+
 //==============================================================================
-class ConsoleLogger : public Logger
-{
-    void logMessage (const String& message) override
-    {
+class ConsoleLogger : public Logger {
+    void logMessage(const String& message) override {
         std::cout << message << std::endl;
 
-       #if JUCE_WINDOWS
-        Logger::outputDebugString (message);
-       #endif
+#if JUCE_WINDOWS
+        Logger::outputDebugString(message);
+#endif
     }
 };
 
 //==============================================================================
-class ConsoleUnitTestRunner : public UnitTestRunner
-{
-    void logMessage (const String& message) override
-    {
-        Logger::writeToLog (message);
-    }
+class ConsoleUnitTestRunner : public UnitTestRunner {
+    void logMessage(const String& message) override { Logger::writeToLog(message); }
 };
 
-
 //==============================================================================
-int main (int argc, char **argv)
-{
-    ArgumentList args (argc, argv);
+int main(int argc, char** argv) {
+    ArgumentList args(argc, argv);
 
-    if (args.containsOption ("--help|-h"))
-    {
-        std::cout << argv[0] << " [--help|-h] [--list-categories] [--category category] [--seed seed]" << std::endl;
+    if (args.containsOption("--help|-h")) {
+        std::cout << argv[0]
+                  << " [--help|-h] [--list-categories] [--category category] "
+                     "[--seed seed]"
+                  << std::endl;
         return 0;
     }
 
-    if (args.containsOption ("--list-categories"))
-    {
-        for (auto& category : UnitTest::getAllCategories())
-            std::cout << category << std::endl;
+    if (args.containsOption("--list-categories")) {
+        for (auto& category : UnitTest::getAllCategories()) std::cout << category << std::endl;
 
-        return  0;
+        return 0;
     }
 
     ConsoleLogger logger;
-    Logger::setCurrentLogger (&logger);
+    Logger::setCurrentLogger(&logger);
 
     ConsoleUnitTestRunner runner;
 
-    auto seed = [&args]
-    {
-        if (args.containsOption ("--seed"))
-        {
-            auto seedValueString = args.getValueForOption ("--seed");
+    auto seed = [&args] {
+        if (args.containsOption("--seed")) {
+            auto seedValueString = args.getValueForOption("--seed");
 
-            if (seedValueString.startsWith ("0x"))
-                return seedValueString.getHexValue64();
+            if (seedValueString.startsWith("0x")) return seedValueString.getHexValue64();
 
             return seedValueString.getLargeIntValue();
         }
@@ -87,17 +78,15 @@ int main (int argc, char **argv)
         return Random::getSystemRandom().nextInt64();
     }();
 
-    if (args.containsOption ("--category"))
-        runner.runTestsInCategory (args.getValueForOption ("--category"), seed);
+    if (args.containsOption("--category"))
+        runner.runTestsInCategory(args.getValueForOption("--category"), seed);
     else
-        runner.runAllTests (seed);
+        runner.runAllTests(seed);
 
-    Logger::setCurrentLogger (nullptr);
+    Logger::setCurrentLogger(nullptr);
 
     for (int i = 0; i < runner.getNumResults(); ++i)
-        if (runner.getResult(i)->failures > 0)
-            return 1;
+        if (runner.getResult(i)->failures > 0) return 1;
 
     return 0;
 }
-
