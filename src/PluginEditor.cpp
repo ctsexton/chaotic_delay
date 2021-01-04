@@ -58,27 +58,32 @@ void AudioPluginAudioProcessorEditor::paint(juce::Graphics& g) {
 }
 
 void AudioPluginAudioProcessorEditor::resized() {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
-    auto area = getLocalBounds();
-    auto labelArea = area.removeFromTop(area.getHeight() / 2);
-    auto sliderWidth = area.getWidth() / 5;
-    auto sliderHeight = 30;
-    auto labelHeight = 20;
-    auto labelWidth = sliderWidth;
+    juce::FlexBox fb;
+    fb.flexWrap = juce::FlexBox::Wrap::wrap;
+    fb.justifyContent = juce::FlexBox::JustifyContent::center;
+    fb.alignContent = juce::FlexBox::AlignContent::center;
 
-    dry_wet_slider.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight));
-    dry_wet_label.setBounds(labelArea.removeFromLeft(labelWidth).removeFromBottom(labelHeight));
+    struct SliderDetail {
+        juce::Slider& slider;
+        juce::Label& label;
+        juce::FlexBox container;
+    };
 
-    gain_slider.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight));
-    gain_label.setBounds(labelArea.removeFromLeft(labelWidth).removeFromBottom(labelHeight));
+    std::vector<SliderDetail> sliderDetails {
+        SliderDetail{dry_wet_slider, dry_wet_label},
+        SliderDetail{feedback_slider, feedback_label},
+        SliderDetail{delay_range_slider, delay_range_label},
+        SliderDetail{delay_roc_slider, delay_roc_label},
+        SliderDetail{gain_slider, gain_label}
+    };
 
-    feedback_slider.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight));
-    feedback_label.setBounds(labelArea.removeFromLeft(labelWidth).removeFromBottom(labelHeight));
+    for (auto& sd : sliderDetails) {
+      sd.container.flexDirection = juce::FlexBox::Direction::column;
+      sd.container.items.add(juce::FlexItem(sd.slider).withMinWidth(300.0f).withMinHeight(30.0f).withFlex(1));
+      sd.container.items.add(juce::FlexItem(sd.label).withMinWidth(300.0f).withMinHeight(20.0f).withFlex(1));
+      fb.items.add(juce::FlexItem(sd.container).withMinWidth(300.0f).withMinHeight(50.0f).withFlex(2));
+    }
 
-    delay_range_slider.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight));
-    delay_range_label.setBounds(labelArea.removeFromLeft(labelWidth).removeFromBottom(labelHeight));
+    fb.performLayout (getLocalBounds().toFloat());
 
-    delay_roc_slider.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight));
-    delay_roc_label.setBounds(labelArea.removeFromLeft(labelWidth).removeFromBottom(labelHeight));
 }
