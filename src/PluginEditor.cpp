@@ -69,21 +69,17 @@ void AudioPluginAudioProcessorEditor::resized() {
         juce::FlexBox container;
     };
 
-    std::vector<SliderDetail> sliderDetails {
-        SliderDetail{dry_wet_slider, dry_wet_label},
-        SliderDetail{feedback_slider, feedback_label},
-        SliderDetail{delay_range_slider, delay_range_label},
-        SliderDetail{delay_roc_slider, delay_roc_label},
-        SliderDetail{gain_slider, gain_label}
-    };
+    std::vector<SliderDetail> sliderDetails{
+        SliderDetail{dry_wet_slider, dry_wet_label}, SliderDetail{feedback_slider, feedback_label},
+        SliderDetail{delay_range_slider, delay_range_label}, SliderDetail{delay_roc_slider, delay_roc_label},
+        SliderDetail{gain_slider, gain_label}};
 
     for (auto& sd : sliderDetails) {
-      sd.container.flexDirection = juce::FlexBox::Direction::column;
-      sd.container.items.add(juce::FlexItem(sd.slider).withMinWidth(300.0f).withMinHeight(30.0f).withFlex(1));
-      sd.container.items.add(juce::FlexItem(sd.label).withMinWidth(300.0f).withMinHeight(20.0f).withFlex(1));
-      fb.items.add(juce::FlexItem(sd.container).withMinWidth(300.0f).withMinHeight(50.0f).withFlex(2));
+        sd.container.flexDirection = juce::FlexBox::Direction::column;
+        sd.container.items.add(juce::FlexItem(sd.slider).withMinWidth(300.0f).withMinHeight(30.0f).withFlex(1));
+        sd.container.items.add(juce::FlexItem(sd.label).withMinWidth(300.0f).withMinHeight(20.0f).withFlex(1));
+        fb.items.add(juce::FlexItem(sd.container).withMinWidth(300.0f).withMinHeight(50.0f).withFlex(2));
     }
 
-    fb.performLayout (getLocalBounds().toFloat());
-
+    fb.performLayout(getLocalBounds().toFloat());
 }
