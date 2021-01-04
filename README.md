@@ -1,10 +1,10 @@
-# juce_plugin_template
-![build status](https://github.com/ctsexton/juce_plugin_template/workflows/CMake/badge.svg)
-Template for JUCE-based plugins using CMake.
+# Chaotic Delay
+![build status](https://github.com/ctsexton/chaotic_delay/workflows/CMake/badge.svg)
+Varispeed buffer reading and writing for impressive sounds.
 
 # Clone & Build
 ```
-git clone --recursive https://github.com/ctsexton/juce_plugin_template.git
+git clone --recursive https://github.com/ctsexton/chaotic_delay.git
 mkdir build && cd build
 cmake ..
 cmake --build .
