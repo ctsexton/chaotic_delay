@@ -15,6 +15,8 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     delay_rate_of_change = parameters.getRawParameterValue("delay_rate_of_change");
     delay_range_upper_bound = parameters.getRawParameterValue("delay_range_upper_bound");
     delay_range_lower_bound = parameters.getRawParameterValue("delay_range_lower_bound");
+    delay_mode = parameters.getRawParameterValue("delay_mode");
+    delay_speed = parameters.getRawParameterValue("delay_speed");
 
     chain.get<gain>().setRampDurationSeconds(0.01f);
 }
@@ -102,22 +104,23 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported(const BusesLayout& layout
 
 void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) {
     juce::ignoreUnused(midiMessages);
-
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-    float lower_bound = *delay_range_lower_bound;
-    float upper_bound = *delay_range_upper_bound;
-    if (random.nextFloat() < *delay_rate_of_change) {
-        auto spd = juce::jmap<double>(random.nextFloat(), 0, 1, lower_bound, upper_bound);
-        chain.get<delay>().setSpeed(spd);
+    const float mode = *delay_mode;
+    if (mode == 0.0f) {
+      const auto new_speed = juce::jmap<double>(*delay_speed, 0, 1, -2.0, 2.0);
+      chain.get<delay>().setSpeed(new_speed);
+    } else {
+      const float lower_bound = *delay_range_lower_bound;
+      const float upper_bound = *delay_range_upper_bound;
+      if (random.nextFloat() < *delay_rate_of_change) {
+          auto new_speed = juce::jmap<double>(random.nextFloat(), 0, 1, lower_bound, upper_bound);
+          chain.get<delay>().setSpeed(new_speed);
+      }
     }
 
     chain.get<gain>().setGainLinear(*gain_level);
     chain.get<delay>().setFeedback(*delay_feedback);
     chain.get<delay>().setDryWet(*dry_wet);
-
     juce::dsp::AudioBlock<float> block(buffer);
     juce::dsp::ProcessContextReplacing<float> context(block);
     chain.process(context);

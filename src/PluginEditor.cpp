@@ -1,4 +1,5 @@
 #include "PluginEditor.h"
+#include <math.h>
 
 #include "PluginProcessor.h"
 
@@ -8,39 +9,50 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     : AudioProcessorEditor(&p),
       processorRef(p),
       valueTreeState(vts),
+      speed_component(vts),
+      delay_mode_button("Delay Mode"),
       dry_wet_slider(juce::Slider::LinearHorizontal, juce::Slider::NoTextBox),
       gain_slider(juce::Slider::LinearHorizontal, juce::Slider::NoTextBox),
       feedback_slider(juce::Slider::LinearHorizontal, juce::Slider::NoTextBox),
-      delay_range_slider(juce::Slider::TwoValueHorizontal, juce::Slider::NoTextBox),
-      delay_roc_slider(juce::Slider::LinearHorizontal, juce::Slider::NoTextBox),
       dry_wet_attachment(vts, "dry_wet", dry_wet_slider),
       gain_attachment(vts, "gain", gain_slider),
-      feedback_attachment(vts, "delay_feedback", gain_slider),
-      delay_roc_attachment(vts, "delay_rate_of_change", delay_roc_slider),
-      delay_range_attachment(vts, "delay_range_lower_bound", "delay_range_upper_bound", delay_range_slider) {
+      feedback_attachment(vts, "delay_feedback", feedback_slider),
+      delay_mode_attachment(*vts.getParameter("delay_mode"), [&](float value) {
+        auto* mode = static_cast<juce::AudioParameterChoice*>(vts.getParameter("delay_mode"));
+        delay_mode_label.setText(mode->getCurrentChoiceName(), juce::dontSendNotification);
+      })
+{
     dry_wet_label.setText("Dry/Wet", juce::dontSendNotification);
     dry_wet_label.setJustificationType(juce::Justification::centred);
     gain_label.setText("Gain", juce::dontSendNotification);
     gain_label.setJustificationType(juce::Justification::centred);
     feedback_label.setText("Feedback", juce::dontSendNotification);
     feedback_label.setJustificationType(juce::Justification::centred);
-    delay_range_label.setText("Speed Range", juce::dontSendNotification);
-    delay_range_label.setJustificationType(juce::Justification::centred);
-    delay_roc_label.setText("Rate of Change", juce::dontSendNotification);
-    delay_roc_label.setJustificationType(juce::Justification::centred);
 
-    delay_roc_slider.setSkewFactor(0.25);
+    delay_mode_attachment.sendInitialUpdate();
+    delay_mode_button.onClick = [&]() {
+      juce::AudioProcessorParameterWithID* mode = vts.getParameter("delay_mode");
+      auto values = mode->getAllValueStrings();
+      auto current = mode->getCurrentValueAsText();
+      auto index = values.indexOf(current);
+      auto length = mode->getNumSteps();
+      auto nextIndex = (index + 1) % length;
+      auto nextText = values[nextIndex];
+      auto newValue = mode->getValueForText(nextText);
+      mode->beginChangeGesture();
+      mode->setValueNotifyingHost(newValue);
+      mode->endChangeGesture();
+    };
 
+    addAndMakeVisible(speed_component);
+    addAndMakeVisible(delay_mode_button);
+    addAndMakeVisible(delay_mode_label);
     addAndMakeVisible(dry_wet_slider);
     addAndMakeVisible(gain_slider);
     addAndMakeVisible(feedback_slider);
-    addAndMakeVisible(delay_range_slider);
-    addAndMakeVisible(delay_roc_slider);
     addAndMakeVisible(dry_wet_label);
     addAndMakeVisible(gain_label);
     addAndMakeVisible(feedback_label);
-    addAndMakeVisible(delay_range_label);
-    addAndMakeVisible(delay_roc_label);
     setResizable(true, true);
     setSize(1000, 300);
 }
@@ -52,7 +64,6 @@ void AudioPluginAudioProcessorEditor::paint(juce::Graphics& g) {
     // (Our component is opaque, so we must completely fill the background with a
     // solid colour)
     g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
-
     g.setColour(juce::Colours::white);
     g.setFont(15.0f);
 }
@@ -70,9 +81,10 @@ void AudioPluginAudioProcessorEditor::resized() {
     };
 
     std::vector<SliderDetail> sliderDetails{
-        SliderDetail{dry_wet_slider, dry_wet_label}, SliderDetail{feedback_slider, feedback_label},
-        SliderDetail{delay_range_slider, delay_range_label}, SliderDetail{delay_roc_slider, delay_roc_label},
-        SliderDetail{gain_slider, gain_label}};
+        SliderDetail{dry_wet_slider, dry_wet_label},
+        SliderDetail{feedback_slider, feedback_label},
+        SliderDetail{gain_slider, gain_label}
+    };
 
     for (auto& sd : sliderDetails) {
         sd.container.flexDirection = juce::FlexBox::Direction::column;
@@ -81,5 +93,11 @@ void AudioPluginAudioProcessorEditor::resized() {
         fb.items.add(juce::FlexItem(sd.container).withMinWidth(300.0f).withMinHeight(50.0f).withFlex(2));
     }
 
+    juce::FlexBox mode_container;
+    mode_container.items.add(juce::FlexItem(delay_mode_button).withMinWidth(300.0f).withMinHeight(30.0f).withFlex(1));
+    mode_container.items.add(juce::FlexItem(delay_mode_label).withMinWidth(300.0f).withMinHeight(30.0f).withFlex(1));
+
+    fb.items.add(juce::FlexItem(mode_container).withMinWidth(300.0f).withMinHeight(50.0f).withFlex(2));
+    fb.items.add(juce::FlexItem(speed_component).withMinWidth(300.0f).withMinHeight(200.0f).withFlex(2));
     fb.performLayout(getLocalBounds().toFloat());
 }
