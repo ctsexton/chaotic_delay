@@ -107,7 +107,7 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     juce::ScopedNoDenormals noDenormals;
     const float mode = *delay_mode;
     if (mode == 0.0f) {
-      const auto new_speed = juce::jmap<double>(*delay_speed, 0, 1, -2.0, 2.0);
+      const float new_speed = *delay_speed;
       chain.get<delay>().setSpeed(new_speed);
     } else {
       const float lower_bound = *delay_range_lower_bound;
