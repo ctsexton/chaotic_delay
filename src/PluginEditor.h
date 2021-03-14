@@ -23,7 +23,8 @@ class AudioPluginAudioProcessorEditor : public juce::AudioProcessorEditor {
     juce::Slider dry_wet_slider;
     juce::Slider gain_slider;
     juce::Slider feedback_slider;
-    juce::TextButton delay_mode_button;
+    juce::Slider time_slider;
+    juce::ShapeButton delay_mode_button;
 
     juce::AudioProcessorValueTreeState::SliderAttachment dry_wet_attachment;
     juce::AudioProcessorValueTreeState::SliderAttachment gain_attachment;
@@ -34,6 +35,7 @@ class AudioPluginAudioProcessorEditor : public juce::AudioProcessorEditor {
     juce::Label gain_label;
     juce::Label feedback_label;
     juce::Label delay_mode_label;
+    juce::Label time_label;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessorEditor)
 };

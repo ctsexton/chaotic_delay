@@ -37,12 +37,14 @@ class RandomSpeedComponent : public juce::Component {
     juce::Label delay_roc_label;
 };
 
+
 class SpeedComponent : public juce::Component {
   public:
     SpeedComponent(juce::AudioProcessorValueTreeState& vts) 
       : 
-      tabs(juce::TabbedButtonBar::Orientation::TabsAtBottom),
+      tabs(juce::TabbedButtonBar::Orientation::TabsAtTop),
       random_speed_component(vts),
+      delay_speed_slider(juce::Slider::RotaryHorizontalVerticalDrag, juce::Slider::NoTextBox),
       delay_speed_attachment(vts, "delay_speed", delay_speed_slider),
       delay_mode_attachment(*vts.getParameter("delay_mode"), [&](float value) {
         auto* mode = static_cast<juce::AudioParameterChoice*>(vts.getParameter("delay_mode"));
@@ -57,32 +59,37 @@ class SpeedComponent : public juce::Component {
 
       tabs.addTab(
         "Manual",
-        juce::Colour(0),
+        juce::Colour(51, 69, 84),
         &delay_speed_slider,
         false
       );
       tabs.addTab(
         "S&H",
-        juce::Colour(0),
+        juce::Colour(89, 79, 79),
         &random_speed_component,
         false
       );
-      tabs.setTabBarDepth(0);
+      tabs.setTabBarDepth(40);
       tabs.setOutline(0);
+      tabs.setLookAndFeel(&tabLookAndFeel);
       delay_mode_attachment.sendInitialUpdate();
       addAndMakeVisible(tabs);
     };
 
     void resized() override {
-      juce::FlexBox fb;
-      fb.flexWrap = juce::FlexBox::Wrap::wrap;
-      fb.justifyContent = juce::FlexBox::JustifyContent::center;
-      fb.alignContent = juce::FlexBox::AlignContent::center;
-      fb.items.add(juce::FlexItem(tabs).withMinWidth(300.0f).withMinHeight(200.0f).withFlex(2));
-      fb.performLayout(getLocalBounds().toFloat());
+      tabs.setBounds(getLocalBounds());
     };
 
   private:
+    class TabLookAndFeel : public juce::LookAndFeel_V4
+    {
+      public:
+        TabLookAndFeel() {};
+
+        int getTabButtonBestWidth(juce::TabBarButton& button, int tabDepth) override {
+          return button.getTabbedButtonBar().getWidth() / button.getTabbedButtonBar().getNumTabs();
+        };
+    } tabLookAndFeel;
     juce::TabbedComponent tabs;
     juce::Slider delay_speed_slider;
     RandomSpeedComponent random_speed_component;

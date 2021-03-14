@@ -10,10 +10,11 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
       processorRef(p),
       valueTreeState(vts),
       speed_component(vts),
-      delay_mode_button("Delay Mode"),
-      dry_wet_slider(juce::Slider::LinearHorizontal, juce::Slider::NoTextBox),
-      gain_slider(juce::Slider::LinearHorizontal, juce::Slider::NoTextBox),
-      feedback_slider(juce::Slider::LinearHorizontal, juce::Slider::NoTextBox),
+      delay_mode_button("Delay Mode", juce::Colours::black, juce::Colours::blue, juce::Colours::red),
+      dry_wet_slider(juce::Slider::RotaryHorizontalVerticalDrag, juce::Slider::NoTextBox),
+      gain_slider(juce::Slider::RotaryHorizontalVerticalDrag, juce::Slider::NoTextBox),
+      feedback_slider(juce::Slider::RotaryHorizontalVerticalDrag, juce::Slider::NoTextBox),
+      time_slider(juce::Slider::RotaryHorizontalVerticalDrag, juce::Slider::NoTextBox),
       dry_wet_attachment(vts, "dry_wet", dry_wet_slider),
       gain_attachment(vts, "gain", gain_slider),
       feedback_attachment(vts, "delay_feedback", feedback_slider),
@@ -28,6 +29,14 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     gain_label.setJustificationType(juce::Justification::centred);
     feedback_label.setText("Feedback", juce::dontSendNotification);
     feedback_label.setJustificationType(juce::Justification::centred);
+    time_label.setText("Time", juce::dontSendNotification);
+    time_label.setJustificationType(juce::Justification::centred);
+
+    juce::Path recordPath;
+    float shapeButtonSize = 1234.0f;
+    recordPath.addRectangle(0, 0, shapeButtonSize, shapeButtonSize);
+    recordPath.addRectangle(shapeButtonSize, shapeButtonSize, shapeButtonSize, shapeButtonSize);
+    delay_mode_button.setShape(recordPath, true, true, false);
 
     delay_mode_attachment.sendInitialUpdate();
     delay_mode_button.onClick = [&]() {
@@ -45,14 +54,16 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     };
 
     addAndMakeVisible(speed_component);
-    addAndMakeVisible(delay_mode_button);
-    addAndMakeVisible(delay_mode_label);
+    /* addAndMakeVisible(delay_mode_button); */
+    /* addAndMakeVisible(delay_mode_label); */
     addAndMakeVisible(dry_wet_slider);
     addAndMakeVisible(gain_slider);
     addAndMakeVisible(feedback_slider);
+    addAndMakeVisible(time_slider);
     addAndMakeVisible(dry_wet_label);
     addAndMakeVisible(gain_label);
     addAndMakeVisible(feedback_label);
+    addAndMakeVisible(time_label);
     setResizable(true, true);
     setSize(1000, 300);
 }
@@ -69,6 +80,31 @@ void AudioPluginAudioProcessorEditor::paint(juce::Graphics& g) {
 }
 
 void AudioPluginAudioProcessorEditor::resized() {
+    juce::Grid grid;
+    using Track = juce::Grid::TrackInfo;
+    using Item = juce::GridItem;
+
+    grid.templateRows = { Track(1_fr), Track(100_px), Track(20_px) };
+    grid.templateColumns = { Track(1_fr), Track(1_fr), Track(1_fr), Track(1_fr) };
+
+    grid.items.addArray({
+        Item(speed_component).withArea(1, 1, 2, 5),
+        Item(time_slider).withArea(2, 1, 3, 2),
+        Item(feedback_slider).withArea(2, 2, 3, 3),
+        Item(dry_wet_slider).withArea(2, 3, 3, 4),
+        Item(gain_slider).withArea(2, 4, 3, 5),
+        Item(time_label).withArea(3, 1, 4, 2),
+        Item(feedback_label).withArea(3, 2, 4, 3),
+        Item(dry_wet_label).withArea(3, 3, 4, 4),
+        Item(gain_label).withArea(3, 4, 4, 5),
+    });
+
+    grid.performLayout(getLocalBounds());
+
+
+
+
+    /*
     juce::FlexBox fb;
     fb.flexWrap = juce::FlexBox::Wrap::wrap;
     fb.justifyContent = juce::FlexBox::JustifyContent::center;
@@ -88,16 +124,17 @@ void AudioPluginAudioProcessorEditor::resized() {
 
     for (auto& sd : sliderDetails) {
         sd.container.flexDirection = juce::FlexBox::Direction::column;
-        sd.container.items.add(juce::FlexItem(sd.slider).withMinWidth(300.0f).withMinHeight(30.0f).withFlex(1));
+        sd.container.items.add(juce::FlexItem(sd.slider).withMinWidth(100.0f).withMinHeight(100.0f).withFlex(1));
         sd.container.items.add(juce::FlexItem(sd.label).withMinWidth(300.0f).withMinHeight(20.0f).withFlex(1));
         fb.items.add(juce::FlexItem(sd.container).withMinWidth(300.0f).withMinHeight(50.0f).withFlex(2));
     }
 
     juce::FlexBox mode_container;
-    mode_container.items.add(juce::FlexItem(delay_mode_button).withMinWidth(300.0f).withMinHeight(30.0f).withFlex(1));
+    mode_container.items.add(juce::FlexItem(delay_mode_button).withMinWidth(10.0f).withMinHeight(10.0f).withMaxWidth(50.0f).withFlex(1));
     mode_container.items.add(juce::FlexItem(delay_mode_label).withMinWidth(300.0f).withMinHeight(30.0f).withFlex(1));
 
     fb.items.add(juce::FlexItem(mode_container).withMinWidth(300.0f).withMinHeight(50.0f).withFlex(2));
     fb.items.add(juce::FlexItem(speed_component).withMinWidth(300.0f).withMinHeight(200.0f).withFlex(2));
     fb.performLayout(getLocalBounds().toFloat());
+    */
 }
