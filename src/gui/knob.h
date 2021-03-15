@@ -16,7 +16,7 @@ class KnobLookAndFeel : public juce::LookAndFeel_V4
   public:
     KnobLookAndFeel();
 
-    KnobLookAndFeel(juce::Colour backgroundColour, juce::Colour outlineColour, juce::Colour pointerColour, juce::Colour baseColour);
+    KnobLookAndFeel(juce::Colour backgroundColour, juce::Colour outlineColour, juce::Colour pointerColour, juce::Colour baseColour, juce::Colour trackColour);
 
     void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height, float sliderPos, 
                           const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider&) override;
@@ -30,4 +30,5 @@ class KnobLookAndFeel : public juce::LookAndFeel_V4
     juce::Colour baseColour = juce::Colours::red;
     juce::Colour outlineColour = juce::Colours::black;
     juce::Colour pointerColour = juce::Colours::white;
+    juce::Colour trackColour = juce::Colours::grey;
 };

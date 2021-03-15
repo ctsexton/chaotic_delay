@@ -12,9 +12,10 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
       speed_component(vts),
       knobLookAndFeel(
           juce::Colours::grey,
-          juce::Colours::grey,
           juce::Colours::white,
-          bottomBackgroundColour
+          juce::Colours::black,
+          bottomBackgroundColour,
+          juce::Colour(80, 80, 80)
       ),
       dry_wet_slider(juce::Slider::RotaryHorizontalVerticalDrag, juce::Slider::NoTextBox),
       gain_slider(juce::Slider::RotaryHorizontalVerticalDrag, juce::Slider::NoTextBox),
@@ -24,33 +25,29 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
       gain_attachment(vts, "gain", gain_slider),
       feedback_attachment(vts, "delay_feedback", feedback_slider)
 {
-    dry_wet_label.setText("Dry/Wet", juce::dontSendNotification);
-    dry_wet_label.setJustificationType(juce::Justification::centred);
-    gain_label.setText("Gain", juce::dontSendNotification);
-    gain_label.setJustificationType(juce::Justification::centred);
-    feedback_label.setText("Feedback", juce::dontSendNotification);
-    feedback_label.setJustificationType(juce::Justification::centred);
-    time_label.setText("Time", juce::dontSendNotification);
-    time_label.setJustificationType(juce::Justification::centred);
+    LookAndFeel::getDefaultLookAndFeel().setDefaultSansSerifTypefaceName("Source Code Pro");
 
-    feedback_slider.setLookAndFeel(&knobLookAndFeel);
-    dry_wet_slider.setLookAndFeel(&knobLookAndFeel);
-    gain_slider.setLookAndFeel(&knobLookAndFeel);
-    time_slider.setLookAndFeel(&knobLookAndFeel);
-    feedback_label.setColour(juce::Label::backgroundColourId, bottomBackgroundColour);
-    dry_wet_label.setColour(juce::Label::backgroundColourId, bottomBackgroundColour);
-    gain_label.setColour(juce::Label::backgroundColourId, bottomBackgroundColour);
-    time_label.setColour(juce::Label::backgroundColourId, bottomBackgroundColour);
+    std::vector<juce::Label*> labels { &dry_wet_label, &gain_label, &feedback_label, &time_label };
+    for (auto& label : labels) {
+      label->setJustificationType(juce::Justification::centred);
+      label->setFont(20);
+      addAndMakeVisible(*label);
+    }
+    std::vector<juce::Slider*> sliders { &dry_wet_slider, &gain_slider, &feedback_slider, &time_slider };
+    for (auto& slider : sliders) {
+      addAndMakeVisible(*slider);
+    }
+    time_slider.setLookAndFeel(&timeKnobLF);
+    feedback_slider.setLookAndFeel(&feedbackKnobLF);
+    dry_wet_slider.setLookAndFeel(&drywetKnobLF);
+    gain_slider.setLookAndFeel(&gainKnobLF);
+
+    dry_wet_label.setText("dry/wet", juce::dontSendNotification);
+    gain_label.setText("gain", juce::dontSendNotification);
+    feedback_label.setText("feedback", juce::dontSendNotification);
+    time_label.setText("time", juce::dontSendNotification);
 
     addAndMakeVisible(speed_component);
-    addAndMakeVisible(dry_wet_slider);
-    addAndMakeVisible(gain_slider);
-    addAndMakeVisible(feedback_slider);
-    addAndMakeVisible(time_slider);
-    addAndMakeVisible(dry_wet_label);
-    addAndMakeVisible(gain_label);
-    addAndMakeVisible(feedback_label);
-    addAndMakeVisible(time_label);
     setResizable(true, true);
     setSize(600, 500);
 }
@@ -61,7 +58,7 @@ AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor() {}
 void AudioPluginAudioProcessorEditor::paint(juce::Graphics& g) {
     // (Our component is opaque, so we must completely fill the background with a
     // solid colour)
-    g.fillAll(juce::Colours::white);
+    g.fillAll(bottomBackgroundColour);
 }
 
 void AudioPluginAudioProcessorEditor::resized() {
@@ -69,19 +66,26 @@ void AudioPluginAudioProcessorEditor::resized() {
     using Track = juce::Grid::TrackInfo;
     using Item = juce::GridItem;
 
-    grid.templateRows = { Track(1_fr), Track(100_px), Track(20_px) };
+    grid.templateRows = { Track(1_fr), Track(5_px), Track(100_px), Track(30_px) };
     grid.templateColumns = { Track(1_fr), Track(1_fr), Track(1_fr), Track(1_fr) };
 
+    auto tabStartY = 1;
+    auto tabEndY = 2;
+    auto slidersStartY = 3;
+    auto slidersEndY = 4;
+    auto labelsStartY = 4;
+    auto labelsEndY = 5;
+
     grid.items.addArray({
-        Item(speed_component).withArea(1, 1, 2, 5),
-        Item(time_slider).withArea(2, 1, 3, 2),
-        Item(feedback_slider).withArea(2, 2, 3, 3),
-        Item(dry_wet_slider).withArea(2, 3, 3, 4),
-        Item(gain_slider).withArea(2, 4, 3, 5),
-        Item(time_label).withArea(3, 1, 4, 2),
-        Item(feedback_label).withArea(3, 2, 4, 3),
-        Item(dry_wet_label).withArea(3, 3, 4, 4),
-        Item(gain_label).withArea(3, 4, 4, 5),
+        Item(speed_component).withArea(tabStartY, 1, tabEndY, 5),
+        Item(time_slider).withArea(slidersStartY, 1, slidersEndY, 2),
+        Item(feedback_slider).withArea(slidersStartY, 2, slidersEndY, 3),
+        Item(dry_wet_slider).withArea(slidersStartY, 3, slidersEndY, 4),
+        Item(gain_slider).withArea(slidersStartY, 4, slidersEndY, 5),
+        Item(time_label).withArea(labelsStartY, 1, labelsEndY, 2),
+        Item(feedback_label).withArea(labelsStartY, 2, labelsEndY, 3),
+        Item(dry_wet_label).withArea(labelsStartY, 3, labelsEndY, 4),
+        Item(gain_label).withArea(labelsStartY, 4, labelsEndY, 5),
     });
 
     grid.performLayout(getLocalBounds());

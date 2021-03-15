@@ -12,10 +12,11 @@
 
 KnobLookAndFeel::KnobLookAndFeel() {};
 
-KnobLookAndFeel::KnobLookAndFeel(juce::Colour backgroundColour, juce::Colour outlineColour, juce::Colour pointerColour, juce::Colour baseColour) :
+KnobLookAndFeel::KnobLookAndFeel(juce::Colour backgroundColour, juce::Colour outlineColour, juce::Colour pointerColour, juce::Colour baseColour, juce::Colour trackColour) :
   backgroundColour(backgroundColour),
   outlineColour(outlineColour),
   pointerColour(pointerColour),
+  trackColour(trackColour),
   baseColour(baseColour)
   {}
 
@@ -34,18 +35,25 @@ void KnobLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, int widt
   g.setColour (baseColour);
   g.fillRect(x, y, width, height);
 
-  // fill
-  g.setColour (backgroundColour);
-  g.fillEllipse (rx, ry, rw, rw);
-
   // outline
   g.setColour (outlineColour);
-  g.drawEllipse (rx, ry, rw, rw, 1.0f);
+  g.fillEllipse (rx + (radius * 0.4), ry + (radius * 0.4), rw * 0.6, rw * 0.6);
+
+  Path arcTrack;
+  g.setColour (trackColour);
+  arcTrack.addPieSegment (rx, ry, rw, rw, rotaryStartAngle, rotaryEndAngle, 0.8);
+  g.fillPath (arcTrack);
+
+  Path filledArc;
+  g.setColour (outlineColour);
+  filledArc.addPieSegment (rx, ry, rw, rw, rotaryStartAngle, angle, 0.8);
+  g.fillPath (filledArc);
+
 
   juce::Path p;
   auto pointerLength = radius * 0.33f;
-  auto pointerThickness = 2.0f;
-  p.addRectangle (-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
+  auto pointerThickness = 4.0f;
+  p.addRectangle (-pointerThickness * 0.5f, -radius * 0.6, pointerThickness, pointerLength);
   p.applyTransform (juce::AffineTransform::rotation (angle).translated (centreX, centreY));
 
   // pointer

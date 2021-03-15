@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "TwoValueSliderAttachment.h"
+#include "knob.h"
 
 class RandomSpeedComponent : public juce::Component {
   public:
@@ -43,6 +44,13 @@ class SpeedComponent : public juce::Component {
     SpeedComponent(juce::AudioProcessorValueTreeState& vts) 
       : 
       random_speed_component(vts),
+      knobLookAndFeel(
+          juce::Colours::grey,
+          juce::Colours::black,
+          juce::Colours::white,
+          juce::Colour(),
+          juce::Colour(200, 200, 200)
+      ),
       delay_speed_slider(juce::Slider::RotaryHorizontalVerticalDrag, juce::Slider::NoTextBox),
       delay_speed_attachment(vts, "delay_speed", delay_speed_slider),
       delay_mode_attachment(*vts.getParameter("delay_mode"), [&](float value) {
@@ -64,15 +72,18 @@ class SpeedComponent : public juce::Component {
         mode->endChangeGesture();
       };
 
+      delay_speed_slider.setLookAndFeel(&knobLookAndFeel);
+      auto* mode = static_cast<juce::AudioParameterChoice*>(vts.getParameter("delay_mode"));
+      auto modes = mode->getAllValueStrings();
       tabs.addTab(
-        "Crazy",
+        modes[0],
         juce::Colour(87, 76, 77),
         &random_speed_component,
         false
       );
       tabs.addTab(
-        "Manual",
-        juce::Colour(65, 57, 58),
+        modes[1],
+        juce::Colours::white,
         &delay_speed_slider,
         false
       );
@@ -91,7 +102,7 @@ class SpeedComponent : public juce::Component {
     class TabLookAndFeel : public juce::LookAndFeel_V4
     {
       public:
-        TabLookAndFeel() {};
+        TabLookAndFeel() { };
 
         int getTabButtonOverlap (int tabDepth)
         {
@@ -219,6 +230,7 @@ class SpeedComponent : public juce::Component {
         }
         std::function<void(int, const String&)> TabChangedFunc;
     } tabs;
+    KnobLookAndFeel knobLookAndFeel;
     juce::Slider delay_speed_slider;
     RandomSpeedComponent random_speed_component;
 

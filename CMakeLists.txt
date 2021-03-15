@@ -77,6 +77,8 @@ target_sources(${PLUGIN_TARGET_NAME}
         src/PluginProcessor.cpp
         src/Delay.cpp
         src/BufferWriter.cpp
+        src/gui/knob.cpp
+        src/gui/font.cpp
         )
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer

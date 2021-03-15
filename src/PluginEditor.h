@@ -3,6 +3,7 @@
 #include "PluginProcessor.h"
 #include "gui/SpeedComponent.h"
 #include "gui/knob.h"
+#include "gui/font.h"
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor : public juce::AudioProcessorEditor {
@@ -23,6 +24,34 @@ class AudioPluginAudioProcessorEditor : public juce::AudioProcessorEditor {
 
     juce::Colour bottomBackgroundColour { 20, 20, 30 };
     KnobLookAndFeel knobLookAndFeel;
+    KnobLookAndFeel timeKnobLF {
+          juce::Colours::grey,
+          juce::Colour(237, 174, 73),
+          juce::Colours::black,
+          bottomBackgroundColour,
+          juce::Colour(80, 80, 80)
+    };
+    KnobLookAndFeel feedbackKnobLF {
+          juce::Colours::grey,
+          juce::Colour(209, 73, 91),
+          juce::Colours::black,
+          bottomBackgroundColour,
+          juce::Colour(80, 80, 80)
+    };
+    KnobLookAndFeel drywetKnobLF {
+          juce::Colours::grey,
+          juce::Colour(30, 255, 188),
+          juce::Colours::black,
+          bottomBackgroundColour,
+          juce::Colour(80, 80, 80)
+    };
+    KnobLookAndFeel gainKnobLF {
+          juce::Colours::grey,
+          juce::Colour(48, 150, 255),
+          juce::Colours::black,
+          bottomBackgroundColour,
+          juce::Colour(80, 80, 80)
+    };
 
     juce::Slider dry_wet_slider;
     juce::Slider gain_slider;
