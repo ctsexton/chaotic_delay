@@ -2,6 +2,7 @@
 
 #include "PluginProcessor.h"
 #include "gui/SpeedComponent.h"
+#include "gui/knob.h"
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor : public juce::AudioProcessorEditor {
@@ -20,21 +21,21 @@ class AudioPluginAudioProcessorEditor : public juce::AudioProcessorEditor {
     juce::AudioProcessorValueTreeState& valueTreeState;
     SpeedComponent speed_component;
 
+    juce::Colour bottomBackgroundColour { 20, 20, 30 };
+    KnobLookAndFeel knobLookAndFeel;
+
     juce::Slider dry_wet_slider;
     juce::Slider gain_slider;
     juce::Slider feedback_slider;
     juce::Slider time_slider;
-    juce::ShapeButton delay_mode_button;
 
     juce::AudioProcessorValueTreeState::SliderAttachment dry_wet_attachment;
     juce::AudioProcessorValueTreeState::SliderAttachment gain_attachment;
     juce::AudioProcessorValueTreeState::SliderAttachment feedback_attachment;
-    juce::ParameterAttachment delay_mode_attachment;
 
     juce::Label dry_wet_label;
     juce::Label gain_label;
     juce::Label feedback_label;
-    juce::Label delay_mode_label;
     juce::Label time_label;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessorEditor)
