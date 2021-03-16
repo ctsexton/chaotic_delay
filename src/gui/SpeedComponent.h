@@ -2,13 +2,21 @@
 #include <JuceHeader.h>
 #include "TwoValueSliderAttachment.h"
 #include "knob.h"
+#include "RangeSlider.h"
 
 class RandomSpeedComponent : public juce::Component {
   public:
     RandomSpeedComponent(juce::AudioProcessorValueTreeState& vts)
       :
+      knobLookAndFeel(
+          juce::Colours::grey,
+          juce::Colours::black,
+          juce::Colour(200, 200, 200),
+          juce::Colour(),
+          juce::Colour(200, 200, 200)
+      ),
       delay_range_slider(juce::Slider::TwoValueHorizontal, juce::Slider::NoTextBox),
-      delay_roc_slider(juce::Slider::LinearHorizontal, juce::Slider::TextBoxBelow),
+      delay_roc_slider(juce::Slider::RotaryHorizontalVerticalDrag, juce::Slider::NoTextBox),
       delay_roc_attachment(vts, "delay_rate_of_change", delay_roc_slider),
       delay_range_attachment(vts, "delay_range_lower_bound", "delay_range_upper_bound", delay_range_slider)
     {
@@ -17,19 +25,32 @@ class RandomSpeedComponent : public juce::Component {
       delay_roc_label.setText("Rate of Change", juce::dontSendNotification);
       delay_roc_label.setJustificationType(juce::Justification::centred);
 
+      delay_range_slider.setLookAndFeel(&rangeSliderLF);
+      delay_roc_slider.setLookAndFeel(&knobLookAndFeel);
       addAndMakeVisible(delay_range_slider);
       addAndMakeVisible(delay_roc_slider);
     };
     void resized() override {
+      juce::Grid grid;
       juce::FlexBox fb;
-      fb.flexWrap = juce::FlexBox::Wrap::wrap;
-      fb.justifyContent = juce::FlexBox::JustifyContent::center;
-      fb.alignContent = juce::FlexBox::AlignContent::center;
-      fb.items.add(juce::FlexItem(delay_roc_slider).withMinWidth(300.0f).withMinHeight(50.0f).withFlex(2));
-      fb.items.add(juce::FlexItem(delay_range_slider).withMinWidth(300.0f).withMinHeight(50.0f).withFlex(2));
-      fb.performLayout(getLocalBounds().toFloat());
+      using Track = juce::Grid::TrackInfo;
+      using Item = juce::GridItem;
+
+      grid.templateRows = { Track(10_px), Track(1_fr), Track(10_px), Track(50_px), Track(10_px) };
+      grid.templateColumns = { Track(1_fr) };
+
+      auto roc_start = 2;
+      auto roc_end = 3;
+      auto range_start = 4;
+      auto range_end = 5;
+
+      grid.items.add(Item(delay_roc_slider).withArea(roc_start, 1, roc_end, 2));
+      grid.items.add(Item(delay_range_slider).withArea(range_start, 1, range_end, 2));
+      grid.performLayout(getLocalBounds());
     };
   private:
+    RangeSliderLookAndFeel rangeSliderLF;
+    KnobLookAndFeel knobLookAndFeel;
     juce::Slider delay_range_slider;
     juce::Slider delay_roc_slider;
     juce::AudioProcessorValueTreeState::SliderAttachment delay_roc_attachment;
@@ -77,13 +98,13 @@ class SpeedComponent : public juce::Component {
       auto modes = mode->getAllValueStrings();
       tabs.addTab(
         modes[0],
-        juce::Colour(87, 76, 77),
+        juce::Colour(50, 50, 50),
         &random_speed_component,
         false
       );
       tabs.addTab(
         modes[1],
-        juce::Colours::white,
+        juce::Colour(41, 110, 180),
         &delay_speed_slider,
         false
       );

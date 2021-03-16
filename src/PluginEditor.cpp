@@ -23,7 +23,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
       time_slider(juce::Slider::RotaryHorizontalVerticalDrag, juce::Slider::NoTextBox),
       dry_wet_attachment(vts, "dry_wet", dry_wet_slider),
       gain_attachment(vts, "gain", gain_slider),
-      feedback_attachment(vts, "delay_feedback", feedback_slider)
+      feedback_attachment(vts, "delay_feedback", feedback_slider),
+      time_attachment(vts, "delay_time", time_slider)
 {
     LookAndFeel::getDefaultLookAndFeel().setDefaultSansSerifTypefaceName("Source Code Pro");
 

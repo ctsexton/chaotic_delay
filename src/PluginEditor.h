@@ -61,6 +61,7 @@ class AudioPluginAudioProcessorEditor : public juce::AudioProcessorEditor {
     juce::AudioProcessorValueTreeState::SliderAttachment dry_wet_attachment;
     juce::AudioProcessorValueTreeState::SliderAttachment gain_attachment;
     juce::AudioProcessorValueTreeState::SliderAttachment feedback_attachment;
+    juce::AudioProcessorValueTreeState::SliderAttachment time_attachment;
 
     juce::Label dry_wet_label;
     juce::Label gain_label;
