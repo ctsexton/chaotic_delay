@@ -5,6 +5,7 @@ class Phasor {
     Phasor() {}
 
     double advance(double increment);
+    double wrap(double input);
     void setMax(double value);
     void reset() { phase = 0; }
 
@@ -23,12 +24,15 @@ class HecticDelay : public juce::dsp::ProcessorBase {
     void setFeedback(float value);
     void setSpeed(float value);
     void setDryWet(float value);
+    void setDelayTime(float value);
 
    private:
     InterpolatingStereoBufferWriter buffer_writer;
     Phasor phasor;
     juce::dsp::DryWetMixer<float> drywet;
+    juce::dsp::DryWetMixer<float> feedback;
     double speed;
+    double offset;
     double chance_of_change = 0.05;
     juce::Random random;
 

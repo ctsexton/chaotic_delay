@@ -17,7 +17,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout createLayout() {
                                                     1.0f),
         std::make_unique<juce::AudioParameterFloat>("delay_speed", "Delay Speed", -2.0f, 2.0f, 1.0f),
         std::make_unique<juce::AudioParameterFloat>("delay_time", "Delay Time", 0.0f, 1.0f, 1.0f),
-        std::make_unique<juce::AudioParameterChoice>("delay_mode", "Mode", juce::StringArray("crazy", "manual"), 0),
+        std::make_unique<juce::AudioParameterChoice>("delay_mode", "Mode", juce::StringArray("crazy", "manual"), 1),
         std::make_unique<juce::AudioParameterFloat>("gain", "Gain", 0.0f, 1.0f, 0.75f),
     };
     return parameters;

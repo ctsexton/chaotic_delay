@@ -55,6 +55,7 @@ class AudioPluginAudioProcessor : public juce::AudioProcessor {
     std::atomic<float>* delay_range_upper_bound = nullptr;
     std::atomic<float>* delay_speed = nullptr;
     std::atomic<float>* delay_mode = nullptr;
+    std::atomic<float>* delay_time = nullptr;
 
     juce::Random random;
     //==============================================================================

@@ -17,6 +17,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     delay_range_lower_bound = parameters.getRawParameterValue("delay_range_lower_bound");
     delay_mode = parameters.getRawParameterValue("delay_mode");
     delay_speed = parameters.getRawParameterValue("delay_speed");
+    delay_time = parameters.getRawParameterValue("delay_time");
 
     chain.get<gain>().setRampDurationSeconds(0.01f);
 }
@@ -121,6 +122,7 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     chain.get<gain>().setGainLinear(*gain_level);
     chain.get<delay>().setFeedback(*delay_feedback);
     chain.get<delay>().setDryWet(*dry_wet);
+    chain.get<delay>().setDelayTime(*delay_time);
     juce::dsp::AudioBlock<float> block(buffer);
     juce::dsp::ProcessContextReplacing<float> context(block);
     chain.process(context);
