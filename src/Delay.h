@@ -1,4 +1,5 @@
 #include "BufferWriter.h"
+#include "Ring.h"
 
 class Phasor {
    public:
@@ -27,22 +28,22 @@ class HecticDelay : public juce::dsp::ProcessorBase {
     void setDelayTime(float value);
 
    private:
-    InterpolatingStereoBufferWriter buffer_writer;
+    std::unique_ptr<InterpolatingStereoBufferWriter> buffer_writer;
     Phasor phasor;
     juce::dsp::DryWetMixer<float> drywet;
     juce::dsp::DryWetMixer<float> feedback;
     double speed;
-    double offset;
+    juce::SmoothedValue<double, juce::ValueSmoothingTypes::Linear> offset;
     double chance_of_change = 0.05;
     juce::Random random;
-
-    float interpolateRead(const double index, const int channel, juce::dsp::AudioBlock<float> block,
-                          const int block_length);
 
     std::unique_ptr<juce::AudioBuffer<float>> temp_buffer;
     std::unique_ptr<juce::AudioBuffer<float>> ring_buffer;
     std::unique_ptr<juce::AudioBuffer<double>> phase_buffer;
+    std::unique_ptr<juce::AudioBuffer<double>> offset_buffer;
     juce::dsp::AudioBlock<float> temp;
     juce::dsp::AudioBlock<float> ring_block;
     juce::dsp::AudioBlock<double> phase_block;
+    juce::dsp::AudioBlock<double> offset_block;
+    std::unique_ptr<Ring> ring;
 };
