@@ -20,6 +20,7 @@ class InterpolatingMonoBufferWriter {
 
    private:
     double previous_phase_index = -1.0;
+    double previous_write_index = -1.0;
     float accumulated_value = 0.0f;
     int accumulated_counter = 0;
     float feedback = 0.0f;
@@ -40,8 +41,7 @@ class InterpolatingStereoBufferWriter {
     void process(AudioBlock input, PhaseBlock phase, PhaseBlock offset) {
         for (int i = 0; i < 2; ++i) {
             auto subInput = input.getSingleChannelBlock(i);
-            auto& writer = channel_writers.at(i);
-            writer.process(subInput, phase, offset);
+            channel_writers.at(i).process(subInput, phase, offset);
         }
     }
 

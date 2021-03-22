@@ -11,6 +11,10 @@ class Ring {
       block.setSample(channel, index, value);
     }
 
+    float getSample(const int channel, const int index) {
+      return block.getSample(channel, index);
+    }
+
     Ring getSingleChannelBlock(const int channel) {
       return Ring(block.getSingleChannelBlock(channel));
     }
@@ -38,7 +42,7 @@ class Ring {
     float interpolateRead(const double index, const int channel) {
         double index_floor;
         auto weight_left = std::modf(index, &index_floor);
-        if (weight_left == 0) {
+        if (weight_left < 0.01) {
             return block.getSample(channel, index);
         }
         const auto first = block.getSample(channel, index_floor);

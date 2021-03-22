@@ -34,8 +34,7 @@ void HecticDelay::prepare(const juce::dsp::ProcessSpec& spec) {
 
     offset.reset(spec.sampleRate, 0.25);
 
-    const auto ring_samples = ring_block.getNumSamples();
-    phasor.setMax(ring_samples);
+    phasor.setMax(ring->getNumSamples());
     phasor.reset();
 }
 
@@ -43,6 +42,8 @@ void HecticDelay::setDryWet(float value) { drywet.setWetMixProportion(value); }
 
 void HecticDelay::process(const juce::dsp::ProcessContextReplacing<float>& context) {
     auto audio = context.getOutputBlock();
+    temp.copyFrom(audio);
+
     drywet.pushDrySamples(audio);
 
     for (int i = 0; i < audio.getNumSamples(); ++i) {
@@ -50,13 +51,13 @@ void HecticDelay::process(const juce::dsp::ProcessContextReplacing<float>& conte
         offset_block.setSample(0, i, offset.getNextValue());
     }
 
-    buffer_writer->process(audio, phase_block, offset_block);
+    buffer_writer->process(temp, phase_block, offset_block);
 
-    temp.fill(0);
+    const auto base_offset = speed > 0 ? -1 : 1;
     for (int i = 0; i < audio.getNumSamples(); ++i) {
         const auto phase = phase_block.getSample(0, i) + offset_block.getSample(0, i);
-        audio.setSample(0, i, ring->at(phase, 0));
-        audio.setSample(1, i, ring->at(phase, 1));
+        audio.setSample(0, i, ring->at(phase + base_offset, 0));
+        audio.setSample(1, i, ring->at(phase + base_offset, 1));
     }
     drywet.mixWetSamples(audio);
 }
