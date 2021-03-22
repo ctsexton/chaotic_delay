@@ -121,33 +121,33 @@ target_link_libraries(${PLUGIN_TARGET_NAME}
 
 # Tests
 # This defines a console app that runs all your unit tests.
-# juce_add_console_app(${TEST_TARGET_NAME})
-# juce_generate_juce_header(${TEST_TARGET_NAME})
+juce_add_console_app(${TEST_TARGET_NAME})
+juce_generate_juce_header(${TEST_TARGET_NAME})
 
-# target_sources(${TEST_TARGET_NAME}
-#   PRIVATE
-#       tests/main.cpp
-#       src/BufferWriter.cpp
-#   )
+target_sources(${TEST_TARGET_NAME}
+  PRIVATE
+      tests/main.cpp
+      src/BufferWriter.cpp
+  )
 
-# target_compile_definitions(${TEST_TARGET_NAME}
-#     PUBLIC
-#         JUCE_UNIT_TESTS=1
-#         # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
-#         JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
-#         JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
-#         JUCE_VST3_CAN_REPLACE_VST2=0)
+target_compile_definitions(${TEST_TARGET_NAME}
+    PUBLIC
+        JUCE_UNIT_TESTS=1
+        # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
+        JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
+        JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
+        JUCE_VST3_CAN_REPLACE_VST2=0)
 
-# target_link_libraries(${TEST_TARGET_NAME}
-#     PRIVATE
-#         juce::juce_audio_utils
-#         juce::juce_dsp
-#     PUBLIC
-#         juce::juce_recommended_config_flags
-#         juce::juce_recommended_lto_flags
-#         juce::juce_recommended_warning_flags)
+target_link_libraries(${TEST_TARGET_NAME}
+    PRIVATE
+        juce::juce_audio_utils
+        juce::juce_dsp
+    PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags)
 
-# enable_testing()
-# add_test(
-#   NAME plugin_tests
-#   COMMAND ${TEST_TARGET_NAME} --category="sextone_tests")
+enable_testing()
+add_test(
+  NAME plugin_tests
+  COMMAND ${TEST_TARGET_NAME} --category=sextone_tests)

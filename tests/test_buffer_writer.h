@@ -29,7 +29,7 @@ class InterpBufTest : public UnitTest {
     void test_write_line() {
         AudioBuffer<float> output_buffer{1, 4};
         juce::dsp::AudioBlock<float> output(output_buffer);
-        InterpolatingMonoBufferWriter writer;
+        InterpolatingMonoBufferWriter writer(output);
 
         auto from_value = 0.0f;
         auto chunk_size = 0.25;
@@ -37,14 +37,14 @@ class InterpBufTest : public UnitTest {
         auto step = 1;
         auto num_steps = 4;
 
-        writer.writeLine(from_value, chunk_size, from_index, step, num_steps, output);
+        writer.writeLine(from_value, chunk_size, from_index, step, num_steps);
         check_block<float>(output, 0, {0.0, 0.25, 0.5, 0.75});
     }
 
     void test_write_line_reverse() {
         AudioBuffer<float> output_buffer{1, 4};
         juce::dsp::AudioBlock<float> output(output_buffer);
-        InterpolatingMonoBufferWriter writer;
+        InterpolatingMonoBufferWriter writer(output);
 
         auto from_value = 0.0f;
         auto chunk_size = 0.25;
@@ -52,7 +52,7 @@ class InterpBufTest : public UnitTest {
         auto step = -1;
         auto num_steps = 4;
 
-        writer.writeLine(from_value, chunk_size, from_index, step, num_steps, output);
+        writer.writeLine(from_value, chunk_size, from_index, step, num_steps);
         check_block<float>(output, 0, {0.75, 0.5, 0.25, 0.0});
     }
 
@@ -60,7 +60,7 @@ class InterpBufTest : public UnitTest {
         AudioBuffer<float> output_buffer{1, 10};
         juce::dsp::AudioBlock<float> output(output_buffer);
         fill_block<float>(output, std::vector<float>(10, 0));
-        InterpolatingMonoBufferWriter writer;
+        InterpolatingMonoBufferWriter writer(output);
 
         auto from_value = 0.25;
         auto to_value = 0.5;
@@ -68,11 +68,11 @@ class InterpBufTest : public UnitTest {
         auto to_index = 6;
 
         // writes up to, but not including, the final value/index;
-        writer.writeDirect(from_value, to_value, from_index, to_index, output);
+        writer.writeDirect(from_value, to_value, from_index, to_index);
         check_block<float>(output, 0, {0, 0, 0.25, 0.3125, 0.375, 0.4375, 0, 0, 0, 0});
 
         fill_block<float>(output, std::vector<float>(10, 0));
-        writer.writeDirect(from_value, to_value, from_index, to_index, output, true);
+        writer.writeDirect(from_value, to_value, from_index, to_index, true);
         check_block<float>(output, 0, {0, 0, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0, 0, 0});
     }
 
@@ -80,7 +80,7 @@ class InterpBufTest : public UnitTest {
         AudioBuffer<float> output_buffer{1, 10};
         juce::dsp::AudioBlock<float> output(output_buffer);
         fill_block<float>(output, std::vector<float>(10, 0));
-        InterpolatingMonoBufferWriter writer;
+        InterpolatingMonoBufferWriter writer(output);
 
         auto from_value = 0.25;
         auto to_value = 0.5;
@@ -88,11 +88,11 @@ class InterpBufTest : public UnitTest {
         auto to_index = 2;
 
         // writes up to, but not including, the final value/index;
-        writer.writeDirect(from_value, to_value, from_index, to_index, output);
+        writer.writeDirect(from_value, to_value, from_index, to_index);
         check_block<float>(output, 0, {0, 0, 0, 0.4375, 0.375, 0.3125, 0.25, 0, 0, 0});
 
         fill_block<float>(output, std::vector<float>(10, 0));
-        writer.writeDirect(from_value, to_value, from_index, to_index, output, true);
+        writer.writeDirect(from_value, to_value, from_index, to_index, true);
         check_block<float>(output, 0, {0, 0, 0.5, 0.4375, 0.375, 0.3125, 0.25, 0, 0, 0});
     }
 
@@ -100,7 +100,7 @@ class InterpBufTest : public UnitTest {
         AudioBuffer<float> output_buffer{1, 10};
         juce::dsp::AudioBlock<float> output(output_buffer);
         fill_block<float>(output, std::vector<float>(10, 0));
-        InterpolatingMonoBufferWriter writer;
+        InterpolatingMonoBufferWriter writer(output);
 
         auto from_value = 0.25f;
         auto to_value = 0.625f;
@@ -108,11 +108,11 @@ class InterpBufTest : public UnitTest {
         auto to_index = 6;
 
         // writes up to, but not including, the final value/index;
-        writer.writeOtherWay(from_value, to_value, from_index, to_index, output);
+        writer.writeOtherWay(from_value, to_value, from_index, to_index);
         check_block<float>(output, 0, {0.375, 0.3125, 0.25, 0, 0, 0, 0, 0.5625, 0.5, 0.4375});
 
         fill_block<float>(output, std::vector<float>(10, 0));
-        writer.writeOtherWay(from_value, to_value, from_index, to_index, output, true);
+        writer.writeOtherWay(from_value, to_value, from_index, to_index, true);
         check_block<float>(output, 0, {0.375, 0.3125, 0.25, 0, 0, 0, 0.625, 0.5625, 0.5, 0.4375});
     }
 
@@ -120,7 +120,7 @@ class InterpBufTest : public UnitTest {
         AudioBuffer<float> output_buffer{1, 10};
         juce::dsp::AudioBlock<float> output(output_buffer);
         fill_block<float>(output, std::vector<float>(10, 0));
-        InterpolatingMonoBufferWriter writer;
+        InterpolatingMonoBufferWriter writer(output);
 
         auto from_value = 0.625;
         auto to_value = 0.25;
@@ -128,38 +128,41 @@ class InterpBufTest : public UnitTest {
         auto to_index = 2;
 
         // writes up to, but not including, the final value/index;
-        writer.writeOtherWay(from_value, to_value, from_index, to_index, output);
+        writer.writeOtherWay(from_value, to_value, from_index, to_index);
         check_block<float>(output, 0, {0.375, 0.3125, 0, 0, 0, 0, 0.625, 0.5625, 0.5, 0.4375});
 
         fill_block<float>(output, std::vector<float>(10, 0));
-        writer.writeOtherWay(from_value, to_value, from_index, to_index, output, true);
+        writer.writeOtherWay(from_value, to_value, from_index, to_index, true);
         check_block<float>(output, 0, {0.375, 0.3125, 0.25, 0, 0, 0, 0.625, 0.5625, 0.5, 0.4375});
     }
 
-    void test_mono_process(juce::dsp::AudioBlock<float> input, juce::dsp::AudioBlock<double> phase,
+    void test_mono_process(juce::dsp::AudioBlock<float> input, juce::dsp::AudioBlock<double> phase, juce::dsp::AudioBlock<double> offset,
                            juce::dsp::AudioBlock<float> ring, InterpolatingMonoBufferWriter& writer) {
         fill_block<float>(input, {0.25, 0.5, 0.7});
         fill_block<double>(phase, {1, 5, 7});
+        fill_block<double>(offset, {0, 0, 0});
         fill_block<float>(ring, std::vector<float>(10, 0.0));
 
-        writer.process(input, phase, ring);
+        writer.process(input, phase, offset);
 
         check_block<float>(ring, 0, {0.0, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.6, 0.0, 0.0, 0.0});
     }
 
-    void test_mono_process_reverse(juce::dsp::AudioBlock<float> input, juce::dsp::AudioBlock<double> phase,
+    void test_mono_process_reverse(juce::dsp::AudioBlock<float> input, juce::dsp::AudioBlock<double> phase, juce::dsp::AudioBlock<double> offset,
                                    juce::dsp::AudioBlock<float> ring, InterpolatingMonoBufferWriter& writer) {
         fill_block<float>(input, {0.25, 0.5, 0.7});
         fill_block<double>(phase, {2, 8, -1});
+        fill_block<double>(offset, {0, 0, 0});
         fill_block<float>(ring, std::vector<float>(10, 0.0));
 
-        writer.process(input, phase, ring);
+        writer.process(input, phase, offset);
 
         check_block<float>(ring, 0, {0.375, 0.3125, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.4375});
     }
 
     void test_processing(void (InterpBufTest::*test_function)(juce::dsp::AudioBlock<float> input,
                                                               juce::dsp::AudioBlock<double> phase,
+                                                              juce::dsp::AudioBlock<double> offset,
                                                               juce::dsp::AudioBlock<float> ring,
                                                               InterpolatingMonoBufferWriter& writer)) {
         AudioBuffer<float> input_buffer{1, 3};
@@ -168,16 +171,20 @@ class InterpBufTest : public UnitTest {
         AudioBuffer<double> phase_buffer{1, 3};
         juce::dsp::AudioBlock<double> phase(phase_buffer);
 
+        AudioBuffer<double> offset_buffer{1, 3};
+        juce::dsp::AudioBlock<double> offset(offset_buffer);
+
         AudioBuffer<float> ring_buffer{1, 10};
         juce::dsp::AudioBlock<float> ring(ring_buffer);
 
         fill_block<float>(input, {0.0, 0.0, 0.0});
         fill_block<double>(phase, {0, 0, 0});
+        fill_block<double>(offset, {0, 0, 0});
         fill_block<float>(ring, std::vector<float>(10, 0.0));
 
-        InterpolatingMonoBufferWriter writer;
+        InterpolatingMonoBufferWriter writer(ring);
 
-        (this->*test_function)(input, phase, ring, writer);
+        (this->*test_function)(input, phase, offset, ring, writer);
     }
 
     template <class T>
