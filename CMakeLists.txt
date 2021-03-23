@@ -150,4 +150,4 @@ target_link_libraries(${TEST_TARGET_NAME}
 enable_testing()
 add_test(
   NAME plugin_tests
-  COMMAND ${TEST_TARGET_NAME} --category="sextone_tests")
+  COMMAND ${TEST_TARGET_NAME} --category=sextone_tests)
