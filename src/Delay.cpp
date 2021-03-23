@@ -28,9 +28,7 @@ void HecticDelay::prepare(const juce::dsp::ProcessSpec& spec) {
     offset_block = juce::dsp::AudioBlock<double>(*offset_buffer);
 
     drywet.prepare(spec);
-    drywet.setWetLatency(0);
-    feedback.prepare(spec);
-    feedback.setWetLatency(0);
+    drywet.setWetLatency(2);
 
     offset.reset(spec.sampleRate, 0.25);
 
@@ -42,22 +40,21 @@ void HecticDelay::setDryWet(float value) { drywet.setWetMixProportion(value); }
 
 void HecticDelay::process(const juce::dsp::ProcessContextReplacing<float>& context) {
     auto audio = context.getOutputBlock();
-    temp.copyFrom(audio);
-
     drywet.pushDrySamples(audio);
 
+    const auto direction = speed > 0 ? 1 : -1;
     for (int i = 0; i < audio.getNumSamples(); ++i) {
         phase_block.setSample(0, i, phasor.advance(speed));
         offset_block.setSample(0, i, offset.getNextValue());
     }
 
-    buffer_writer->process(temp, phase_block, offset_block);
+    buffer_writer->process(audio, phase_block, offset_block);
 
-    const auto base_offset = speed > 0 ? -1 : 1;
+    const auto base_offset = speed > 0 ? -2 : 2;
     for (int i = 0; i < audio.getNumSamples(); ++i) {
-        const auto phase = phase_block.getSample(0, i) + offset_block.getSample(0, i);
-        audio.setSample(0, i, ring->at(phase + base_offset, 0));
-        audio.setSample(1, i, ring->at(phase + base_offset, 1));
+        const auto phase = phase_block.getSample(0, i) + offset_block.getSample(0, i) + base_offset;
+        audio.setSample(0, i, ring->at(phase, 0));
+        audio.setSample(1, i, ring->at(phase, 1));
     }
     drywet.mixWetSamples(audio);
 }
@@ -77,7 +74,8 @@ void HecticDelay::setSpeed(float value) {
 void HecticDelay::setDelayTime(float value) {
   const auto ring_samples = ring_block.getNumSamples();
   Range<double> range{0.0, 1.0};
-  offset.setTargetValue((1 - range.clipValue(value)) * ring_samples);
+  const auto mapped_value = juce::jmap(range.clipValue(value * value), (double)ring_samples - 2, ring_samples * 0.5);
+  offset.setTargetValue(mapped_value);
 }
 
 void Phasor::setMax(double value) { max = value; }

@@ -101,7 +101,7 @@ void InterpolatingMonoBufferWriter::writeLine(const float from_value, const floa
 void InterpolatingMonoBufferWriter::writeNewSample(const int write_index, const float write_value,
                                                    const double feedback_offset) {
     const auto feedback_sample = ring.at(write_index + feedback_offset, 0) * feedback;
-    const auto sample = write_value; + feedback_sample;
+    const auto sample = write_value + feedback_sample;
     ring.setSample(0, write_index, sample);
 }
 
