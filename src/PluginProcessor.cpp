@@ -13,6 +13,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     gain_level = parameters.getRawParameterValue("gain");
     delay_feedback = parameters.getRawParameterValue("delay_feedback");
     delay_rate_of_change = parameters.getRawParameterValue("delay_rate_of_change");
+    delay_chance_of_change = parameters.getRawParameterValue("delay_chance_of_change");
     delay_range_upper_bound = parameters.getRawParameterValue("delay_range_upper_bound");
     delay_range_lower_bound = parameters.getRawParameterValue("delay_range_lower_bound");
     delay_mode = parameters.getRawParameterValue("delay_mode");
@@ -76,6 +77,7 @@ void AudioPluginAudioProcessor::changeProgramName(int index, const juce::String&
 void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
     juce::dsp::ProcessSpec spec{sampleRate, static_cast<juce::uint32>(samplesPerBlock), 2};
     chain.prepare(spec);
+    current_sample_rate = sampleRate;
 }
 
 void AudioPluginAudioProcessor::releaseResources() {
@@ -106,26 +108,58 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported(const BusesLayout& layout
 void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) {
     juce::ignoreUnused(midiMessages);
     juce::ScopedNoDenormals noDenormals;
-    const float mode = *delay_mode;
-    if (mode > 0.0f) {
-      const float new_speed = *delay_speed;
-      chain.get<delay>().setSpeed(new_speed);
-    } else {
-      const float lower_bound = *delay_range_lower_bound;
-      const float upper_bound = *delay_range_upper_bound;
-      if (random.nextFloat() < *delay_rate_of_change) {
-          auto new_speed = juce::jmap<double>(random.nextFloat(), 0, 1, lower_bound, upper_bound);
-          chain.get<delay>().setSpeed(new_speed);
-      }
-    }
+
+    countdown_length = (1.0 / *delay_rate_of_change) * current_sample_rate;
 
     chain.get<gain>().setGainLinear(*gain_level);
     chain.get<delay>().setFeedback(*delay_feedback);
     chain.get<delay>().setDryWet(*dry_wet);
     chain.get<delay>().setDelayTime(*delay_time);
+    
+    const float mode = *delay_mode;
+
     juce::dsp::AudioBlock<float> block(buffer);
-    juce::dsp::ProcessContextReplacing<float> context(block);
-    chain.process(context);
+
+    if (mode > 0.0f) {
+      chain.get<delay>().setSpeed(*delay_speed);
+      juce::dsp::ProcessContextReplacing<float> context(block);
+      chain.process(context);
+    }
+
+    auto remaining_samples = buffer.getNumSamples();
+    while (mode == 0.0f && remaining_samples > 0) {
+      auto should_update_rate = false;
+      auto block_size = remaining_samples;
+      const auto start_sample_index = buffer.getNumSamples() - remaining_samples;
+
+      if (countdown > remaining_samples) {
+        countdown = countdown - remaining_samples;
+        remaining_samples = 0;
+      } else {
+        block_size = countdown;
+        remaining_samples = remaining_samples - countdown;
+        countdown = countdown_length;
+        should_update_rate = true;
+      }
+      if (countdown_length = 0) {
+        break;
+      }
+
+      if (block_size > 0) {
+        juce::dsp::AudioBlock<float> sub_block(block.getSubBlock(start_sample_index, block_size));
+        juce::dsp::ProcessContextReplacing<float> context(sub_block);
+        chain.process(context);
+      }
+
+      if (should_update_rate) {
+        const float lower_bound = *delay_range_lower_bound;
+        const float upper_bound = *delay_range_upper_bound;
+        if (random.nextFloat() < *delay_chance_of_change) {
+            const auto new_speed = juce::jmap<double>(random.nextFloat(), 0, 1, lower_bound, upper_bound);
+            chain.get<delay>().setSpeed(new_speed);
+        }
+      }
+    }
 }
 
 //==============================================================================
