@@ -67,7 +67,7 @@ void AudioPluginAudioProcessorEditor::resized() {
     using Track = juce::Grid::TrackInfo;
     using Item = juce::GridItem;
 
-    grid.templateRows = { Track(1_fr), Track(5_px), Track(100_px), Track(30_px) };
+    grid.templateRows = { Track(1_fr), Track(10_px), Track(100_px), Track(30_px) };
     grid.templateColumns = { Track(1_fr), Track(1_fr), Track(1_fr), Track(1_fr) };
 
     auto tabStartY = 1;

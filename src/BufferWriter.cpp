@@ -2,8 +2,6 @@
 
 void InterpolatingMonoBufferWriter::process(AudioBlock input, PhaseBlock phase, PhaseBlock offset) {
     const auto numInputSamples = input.getNumSamples();
-    jassert(numInputSamples == phase.getNumSamples());
-    jassert(numInputSamples == offset.getNumSamples());
 
     for (int i = 0; i < numInputSamples; ++i) {
         const auto phase_index = std::floor(phase.getSample(0, i));
