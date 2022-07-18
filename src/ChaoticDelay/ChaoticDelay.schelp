@@ -1,0 +1,26 @@
+class:: ChaoticDelay
+summary:: Chaotic Delay Plugin
+related:: TODO
+categories:: UGens>TODO
+
+description::
+
+Crazy sounds
+
+
+classmethods::
+
+method::ar, kr
+
+argument::TODO
+
+argument::TODO
+
+
+examples::
+
+code::
+
+{ ChaoticDelay.ar(/* TODO */) }.play
+
+::
